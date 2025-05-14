@@ -1,12 +1,18 @@
-package Courier;
+package сourier.tests;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import сourier.data.CourierClient;
+import сourier.data.CourierCreateRequest;
+import сourier.data.CourierLoginRequest;
+import сourier.data.CourierLoginResponse;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.apache.http.HttpStatus.*;
 
 public class LoginCourierTests {
     private CourierClient courierClient;
@@ -19,11 +25,11 @@ public class LoginCourierTests {
         courier = new CourierCreateRequest("azazel" + System.currentTimeMillis(), "1234", "naruto");
 
         Response createResponse = courierClient.createCourier(courier);
-        createResponse.then().statusCode(201);
+        createResponse.then().statusCode(SC_CREATED);
 
         CourierLoginRequest loginRequest = new CourierLoginRequest(courier.getLogin(), courier.getPassword());
         Response loginResponse = courierClient.loginCourier(loginRequest);
-        loginResponse.then().statusCode(200);
+        loginResponse.then().statusCode(SC_OK);
 
         CourierLoginResponse loginData = loginResponse.as(CourierLoginResponse.class);
         courierId = loginData.getId();
@@ -39,7 +45,7 @@ public class LoginCourierTests {
     public void courierLoginTest() {
         CourierLoginRequest loginRequest = new CourierLoginRequest(courier.getLogin(), courier.getPassword());
         Response response = courierClient.loginCourier(loginRequest);
-        response.then().statusCode(200)
+        response.then().statusCode(SC_OK)
                 .and()
                 .assertThat().body("id", notNullValue());
     }
@@ -51,7 +57,7 @@ public class LoginCourierTests {
         CourierLoginRequest loginRequest = new CourierLoginRequest("", "1234");
         Response response = courierClient.loginCourier(loginRequest);
 
-        response.then().statusCode(400)
+        response.then().statusCode(SC_BAD_REQUEST)
                 .and()
                 .assertThat().body("message", equalTo("Недостаточно данных для входа"));
     }
@@ -62,7 +68,7 @@ public class LoginCourierTests {
         CourierLoginRequest loginRequest = new CourierLoginRequest("azazel", "");
         Response response = courierClient.loginCourier(loginRequest);
 
-        response.then().statusCode(400)
+        response.then().statusCode(SC_BAD_REQUEST)
                 .and()
                 .assertThat().body("message", equalTo("Недостаточно данных для входа"));
     }
@@ -72,7 +78,7 @@ public class LoginCourierTests {
         CourierLoginRequest loginRequest = new CourierLoginRequest("user" + System.currentTimeMillis(), "1234");
         Response response = courierClient.loginCourier(loginRequest);
 
-        response.then().statusCode(404)
+        response.then().statusCode(SC_NOT_FOUND)
                 .and()
                 .assertThat().body("message", equalTo("Учетная запись не найдена"));
     }
@@ -82,7 +88,7 @@ public class LoginCourierTests {
         CourierLoginRequest loginRequest = new CourierLoginRequest(courier.getLogin(), "wrongPassword");
         Response response = courierClient.loginCourier(loginRequest);
 
-        response.then().statusCode(404)
+        response.then().statusCode(SC_NOT_FOUND)
                 .and()
                 .assertThat().body("message", equalTo("Учетная запись не найдена"));
     }

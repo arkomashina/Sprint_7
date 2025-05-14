@@ -1,18 +1,22 @@
-package Order;
+package order.tests;
 
-import io.restassured.RestAssured;
+import io.qameta.allure.Description;
+import io.qameta.allure.Feature;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.junit.Before;
+import order.data.model.Order;
+import order.data.client.OrderClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.apache.http.HttpStatus.*;
 
-
+@Feature("Создание заказа")
 @RunWith(Parameterized.class)
 public class CreateOrderTests {
     private final String[] colour;
+    private final OrderClient orderClient = new OrderClient();
 
     public CreateOrderTests(String[] colour) {
         this.colour = colour;
@@ -28,31 +32,15 @@ public class CreateOrderTests {
         };
     }
 
-    @Before
-    public void setUp() {
-        RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
-    }
-
     @Test
+    @DisplayName("Успешное создание заказа")
+    @Description("Тест проверяет, что заказ можно создать с разными комбинациями цветов")
     public void createSuccessfulOrderTest() {
-        Order order = new Order(
-                "Naruto",
-                "Uchiha",
-                "Konoha, 142 apt.",
-                "4",
-                "+7 800 355 35 35",
-                5,
-                "2020-06-06",
-                "Saske, come back to Konoha",
-                colour
-        );
+        Order order = new Order("Naruto", "Uchiha", "Konoha, 142 apt.", "4",
+                "+7 800 355 35 35", 5, "2020-06-06", "Saske, come back to Konoha", colour);
 
-        Response response = given()
-                .header("Content-type", "application/json")
-                .body(order)
-                .when()
-                .post("/api/v1/orders");
-        response.then().statusCode(201)
+        Response response = orderClient.createOrder(order);
+        response.then().statusCode(SC_CREATED)
                 .and()
                 .assertThat().body("track", notNullValue());
         System.out.println(response.body().asString());

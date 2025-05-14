@@ -1,10 +1,11 @@
-package Courier;
+package сourier.data;
 
 import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 
+import static сourier.data.CourierConstants.*;
 import static io.restassured.RestAssured.given;
 
 public class CourierClient {
@@ -18,7 +19,7 @@ public class CourierClient {
                 .header("Content-type", "application/json")
                 .body(request)
                 .when()
-                .post("/api/v1/courier");
+                .post(CREATE_COURIER);
     }
 
     @Step("Отправить запрос авторизации курьера")
@@ -27,7 +28,7 @@ public class CourierClient {
                 .header("Content-type", "application/json")
                 .body(request)
                 .when()
-                .post("/api/v1/courier/login");
+                .post(LOGIN_COURIER);
     }
 
     @Step("Отправить запрос на удаление курьера")
@@ -35,21 +36,14 @@ public class CourierClient {
         return given()
                 .header("Content-type", "application/json")
                 .when()
-                .delete("/api/v1/courier/" + courierId);
-    }
-    @Step("Отправить запрос на удаление курьера с несуществующим идентификатором")
-    public Response deleteCourierWithWrongId(int number) {
-        return given()
-                .header("Content-type", "application/json")
-                .when()
-                .delete("/api/v1/courier/" + number);
+                .delete(DELETE_COURIER + courierId);
     }
     @Step("Отправить запрос на удаление курьера с несуществующим идентификатором")
     public Response deleteCourierWithoutId() {
         return given()
                 .header("Content-type", "application/json")
                 .when()
-                .delete("/api/v1/courier/");
+                .delete(DELETE_COURIER);
     }
 
     @Step("Отправить запрос на получение заказов курьера")

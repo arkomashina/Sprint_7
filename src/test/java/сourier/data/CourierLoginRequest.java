@@ -1,4 +1,4 @@
-package Courier;
+package сourier.data;
 
 public class CourierLoginRequest {
     private String login;

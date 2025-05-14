@@ -1,4 +1,4 @@
-package Courier;
+package сourier.data;
 
 public class CourierLoginResponse {
     private int id;

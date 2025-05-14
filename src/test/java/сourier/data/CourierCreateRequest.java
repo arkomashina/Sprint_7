@@ -1,4 +1,5 @@
-package Courier;
+package сourier.data;
+
 
 public class CourierCreateRequest {
     private String login;

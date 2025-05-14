@@ -1,13 +1,20 @@
-package Courier;
+package сourier.tests;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import сourier.data.CourierClient;
+import сourier.data.CourierCreateRequest;
+import сourier.data.CourierLoginRequest;
+import сourier.data.CourierLoginResponse;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.apache.http.HttpStatus.*;
 
 public class CreateCourierTests {
 
@@ -21,11 +28,11 @@ public class CreateCourierTests {
         courier = new CourierCreateRequest("azazel" + System.currentTimeMillis(), "1234", "naruto");
 
         Response createResponse = courierClient.createCourier(courier);
-        createResponse.then().statusCode(201);
+        createResponse.then().statusCode(SC_CREATED);
 
         CourierLoginRequest loginRequest = new CourierLoginRequest(courier.getLogin(), courier.getPassword());
         Response loginResponse = courierClient.loginCourier(loginRequest);
-        loginResponse.then().statusCode(200);
+        loginResponse.then().statusCode(SC_OK);
 
         CourierLoginResponse loginData = loginResponse.as(CourierLoginResponse.class);
         courierId = loginData.getId();
@@ -43,7 +50,7 @@ public class CreateCourierTests {
         CourierCreateRequest newCourier = new CourierCreateRequest("user" + System.currentTimeMillis(), "1234", "Saske");
         // создать курьера уникального
         Response response = courierClient.createCourier(newCourier);
-        response.then().statusCode(201)
+        response.then().statusCode(SC_CREATED)
                 .and()
                 .assertThat().body("ok", equalTo(true));
         // удалить курьера после теста
@@ -51,7 +58,7 @@ public class CreateCourierTests {
         CourierLoginRequest loginRequest = new CourierLoginRequest(newCourier.getLogin(), newCourier.getPassword());
         Response loginResponse = courierClient.loginCourier(loginRequest);
         int id = loginResponse.as(CourierLoginResponse.class).getId();
-        courierClient.deleteCourier(id).then().statusCode(200);
+        courierClient.deleteCourier(id).then().statusCode(SC_OK);
 
     }
 
@@ -60,7 +67,7 @@ public class CreateCourierTests {
     @DisplayName("Проверить ошибку при повторном создании курьера с существующим логином")
     public void courierCreationWithSameLoginTest() {
         Response response = courierClient.createCourier(courier);
-        response.then().statusCode(409)
+        response.then().statusCode(SC_CONFLICT)
                 .and()
                 .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
     }
@@ -76,7 +83,7 @@ public class CreateCourierTests {
 
         for (CourierCreateRequest invalidCourier : wrongData) {
             Response response = courierClient.createCourier(invalidCourier);
-            response.then().statusCode(400)
+            response.then().statusCode(SC_BAD_REQUEST)
                     .and()
                     .body("message", equalTo("Недостаточно данных для создания учетной записи"));
         }
