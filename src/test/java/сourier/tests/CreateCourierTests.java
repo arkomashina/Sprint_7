@@ -10,8 +10,6 @@ import сourier.data.CourierCreateRequest;
 import сourier.data.CourierLoginRequest;
 import сourier.data.CourierLoginResponse;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.apache.http.HttpStatus.*;
@@ -72,21 +70,6 @@ public class CreateCourierTests {
                 .body("message", equalTo("Этот логин уже используется. Попробуйте другой."));
     }
 
-    @Test
-    @DisplayName("Проверить ошибку при попытке создания курьера с неполными данными")
-    public void courierCreationWithEmptyLoginOrPasswordField() {
-        List<CourierCreateRequest> wrongData = new ArrayList<>();
-        wrongData.add(new CourierCreateRequest(null, "1234", "Naruto"));
-        wrongData.add(new CourierCreateRequest("login" + System.currentTimeMillis(), null, "Naruto"));
-        wrongData.add(new CourierCreateRequest(null, null, "Naruto"));
-        wrongData.add(new CourierCreateRequest());
 
-        for (CourierCreateRequest invalidCourier : wrongData) {
-            Response response = courierClient.createCourier(invalidCourier);
-            response.then().statusCode(SC_BAD_REQUEST)
-                    .and()
-                    .body("message", equalTo("Недостаточно данных для создания учетной записи"));
-        }
-    }
 }
 

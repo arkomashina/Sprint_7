@@ -9,11 +9,11 @@ import static org.apache.http.HttpStatus.*;
 
 @Feature("Получение заказов")
 public class OrderListTests {
-    private final OrderClient orderClient = new OrderClient();
+    private final OrderClient orderService = new OrderClient();
 
     @Test
     public void getOrderListTest() {
-        Response response = orderClient.getOrderList();
+        Response response = orderService.getOrderList();
         response.then().statusCode(SC_OK)
                 .and()
                 .body("orders", notNullValue());
